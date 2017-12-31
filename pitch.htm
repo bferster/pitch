@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Pitch</title>
+		<script src="pitchdetect.js"></script>
+	</head>
+	<body>
+		<p><button onclick="toggleLiveInput()">Live</button> &nbsp;
+		<button onclick="togglePlayback()">MP3</button></p>
+		<div><span id="pitch">--</span>Hz</div>
+		<canvas id="waveform2" width="512" height="256"></canvas>
+		<br>
+		<canvas id="waveform" width="512" height="256"></canvas>
+	</body>
+</html>

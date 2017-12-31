@@ -5,29 +5,26 @@ var audioContext = null;
 var isPlaying = false;
 var sourceNode = null;
 var analyser = null;
-var theBuffer = null;
-var DEBUGCANVAS = null;
+var mp3buffer = null;
 var mediaStreamSource = null;
 var	waveCanvas, waveCanvas2, pitchElem;
 var mp3file=null;
 
 window.onload = function() {
 	audioContext = new AudioContext();
-	MAX_SIZE = Math.max(4,Math.floor(audioContext.sampleRate/5000));	// corresponds to a 5kHz signal
 	var request = new XMLHttpRequest();
 	request.open("GET", "hello.mp3", true);
 	request.responseType = "arraybuffer";
 	request.onload=function() {
 		audioContext.decodeAudioData( request.response,function(buffer) { 
-	   		theBuffer=buffer;
+	   		mp3buffer=buffer;
 			});
 		}
 	request.send();
 
 	waveCanvas = document.getElementById( "waveform" ).getContext("2d");
 	waveCanvas2 = document.getElementById( "waveform2" ).getContext("2d");
-
-		pitchElem = document.getElementById( "pitch" );
+	pitchElem = document.getElementById( "pitch" );
 }
 
 function error() {   alert("Doesn't work on this browser. Try Firefox"); }
@@ -82,7 +79,7 @@ function togglePlayback() {
   	kk=jj=0;
 	for (i=0;i<512;++i)	tbuf[i]=0;
 	sourceNode=audioContext.createBufferSource();
-    sourceNode.buffer=theBuffer;
+    sourceNode.buffer=mp3buffer;
     analyser=audioContext.createAnalyser();
     analyser.fftSize=2048;
     sourceNode.connect(analyser);
@@ -162,7 +159,7 @@ function autoCorrelate(buf,sampleRate) {
 	{
 		var i,y;
 		analyser.getFloatTimeDomainData(buf);
-		var ac=autoCorrelate(buf,audioContext.sampleRate/2);
+		var ac=autoCorrelate(buf,audioContext.sampleRate);
 		waveCanvas.clearRect(0,0,512,256);
 		waveCanvas.strokeStyle="#000099";
 		waveCanvas.lineWidth=6;

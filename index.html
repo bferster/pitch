@@ -1,15 +1,140 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Pitch</title>
-		<script src="pitchdetect.js"></script>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+		<link REL="SHORTCUT ICON" HREF="img/favicon.ico">
+		<title>Understand Me!</title>
+		<style>
+		body { 			font-family: Verdana,Geneva,sans-serif; font-size:13px; box-sizing: border-box;
+						padding: 0px; margin: 0px; text-align: center; color: #888;
+						}
+		.to-main {		background-color:#eee; border-radius: 16px; padding: 16px; width: 600px;
+						margin-left: auto; margin-right: auto;
+						}
+		.to-input {		border-radius: 8px; padding: 12px; width: calc(100% - 24px); font-size:16px; border:none; font-family: Verdana,Geneva,sans-serif; 
+						}
+		.to-result {	background-color:#fff; border-radius: 8px; padding: 12px; width: calc(100% - 24px); font-size:16px; min-height: 60px; height: auto;
+						text-align:left; color:#000;
+						}
+		.to-help {		width: 600px; margin-left: auto; margin-right: auto; text-align:left; color:#000;
+						}
+		.to-is 	{		border-radius:8px; padding-left:8px; border: 1px solid #999; margin-bottom: 3px;
+						}
+		.to-bs 	{		font-size:11px; border-radius:8px; padding:2px; padding-left:8px; padding-right:8px;
+						border: none; margin-bottom: 3px; color:#fff; background-color:#2994b2; 
+						}
+
+		</style>
 	</head>
 	<body>
-		<p><button onclick="toggleLiveInput()">Live</button> &nbsp;
-		<button onclick="togglePlayback()">MP3</button></p>
-		<div><span id="pitch">--</span>Hz</div>
-		<canvas id="waveform2" width="512" height="256"></canvas>
 		<br>
-		<canvas id="waveform" width="512" height="256"></canvas>
+		<div id='mainDiv' class='to-main'>
+			<div style='font-size:24px;color:#2994b2'><b>Understand Me!</b><br></div><br>
+			Type your phase here:<br>
+			<textarea id='inputText' class='to-input'></textarea>&nbsp;&nbsp;
+			<button id='random' style='float:left;margin-top:4px' class='to-bs'>Get a random phrase</button><br>
+			<img id='hearBut' src='img/hear.png' style='float:right;cursor:pointer;margin-top:-10px;' width='20' title='Hear what you typed'><br><br>
+			<p>Click here&nbsp;&nbsp;<img id='speakBut' src='img/speak.png' style='vertical-align:middle;cursor:pointer' width='64' title='Dictate your text'>&nbsp;&nbsp;to speak</p>
+			What we heard was:<br>
+			<div id='resultDiv' class='to-result'></div><br>
+			Comments:
+			<div id='commentDiv' class='to-comment'>
+			</div>
+		</div>
+		<br><br>
+		<div id='helpDiv' class='to-help'>
+			<p><b>How to use Understand Me!</b></p>
+			1. Type in a phrase you want to use or get a random phrase.<br>
+			2. Click on the hear icon to hear it spoken by the computer voice.<br>
+			3. Click on the speak button.<br>
+			4. When you are finished, what it interpreted is shown.<br>
+			5. If it its the same as the words your typed, it understood you!<br><br>
+			Playback voice: <select id='voiceList' class='to-is'></select><br>
+		</div>
 	</body>
-</html>
+
+	<script>
+		
+		var randex=0;
+		
+		$(document).ready(function() {								           	// ON PAGE LOADED
+			
+			speechSynthesis.onvoiceschanged=function() {
+				speechSynthesis.getVoices().forEach(function(voice,index) {
+					var option=$('<option>').val(index).html(voice.name);
+					$('#voiceList').append(option);
+					});
+				}
+			
+			$('#hearBut').click(function() {
+					var msg=new SpeechSynthesisUtterance();
+					msg.text=$('#inputText').val();
+					var voices=window.speechSynthesis.getVoices();
+					msg.voice=voices[$('#voiceList').val()];
+					speechSynthesis.speak(msg);
+					})
+
+			$("#inputText").on("change", function() { 
+					$("#inputText").height(24);
+					$("#inputText").height($("#inputText")[0].scrollHeight-24);
+					});
+
+			$("#random").click(function() {
+				$("#inputText").val(randomText[randex]);
+				randex=++randex%randomText.length
+				});
+
+			$('#speakBut').click(function() {
+				$("#resultDiv").text("Waiting for speech...")
+				var recognition = new webkitSpeechRecognition();
+				recognition.onresult = function(event) { 
+					$("#resultDiv").text(event.results[0][0].transcript) ;
+					}
+				recognition.start();
+				});
+
+		});
+	
+	var randomText=[
+		"It was the best of times.",
+		"It was the worst of times.",
+		"It was the age of wisdom.",
+		"It was the age of foolishness.",
+		"It was the epoch of belief.",
+		"It was the epoch of incredulity.",
+		"It was the season of Light.",
+		"It was the season of Darkness.",
+		"It was the spring of hope.",
+		"It was the winter of despair"
+		];	
+
+		
+////////////////////////////////////////////////////////////////////////////////////////////
+// HELPERS
+////////////////////////////////////////////////////////////////////////////////////////////
+
+function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+{
+	if (p4 != undefined)
+		console.log(msg,p1,p2,p3,p4);
+	else if (p3 != undefined)
+		console.log(msg,p1,p2,p3);
+	else if (p2 != undefined)
+		console.log(msg,p1,p2);
+	else if (p1 != undefined)
+		console.log(msg,p1);
+	else
+		console.log(msg);
+}	
+		</script>
+
+
+
+
+
+	</html>
+
