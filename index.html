@@ -7,6 +7,7 @@
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 		<link REL="SHORTCUT ICON" HREF="img/favicon.ico">
+		<!script src="pitchdetect.js"></!script>
 		<title>Understand Me!</title>
 		<style>
 		body { 			font-family: Verdana,Geneva,sans-serif; font-size:13px; box-sizing: border-box;
@@ -41,8 +42,16 @@
 			<p>Click here&nbsp;&nbsp;<img id='speakBut' src='img/speak.png' style='vertical-align:middle;cursor:pointer' width='64' title='Dictate your text'>&nbsp;&nbsp;to speak</p>
 			What we heard was:<br>
 			<div id='resultDiv' class='to-result'></div><br>
-			Comments:
-			<div id='commentDiv' class='to-comment'>
+			
+			Language: 
+			<select id='languageSel' style='border-radius:16px;padding-left:8px;color:#999'> 
+				<option value="en">English</option>
+				<option value="ar">Arabic</option>
+				<option value="ps">Pashto</option>
+				<option value="es">Spanish</option>
+				<option value="ru">Russian</option>
+				<option value="th">Thai</option>
+			</select>
 			</div>
 		</div>
 		<br><br>
@@ -51,15 +60,30 @@
 			1. Type in a phrase you want to use or get a random phrase.<br>
 			2. Click on the hear icon to hear it spoken by the computer voice.<br>
 			3. Click on the speak button.<br>
-			4. When you are finished, what it interpreted is shown.<br>
+			4. When you are finished, what it interpreted is shown, in the selected language.<br>
 			5. If it its the same as the words your typed, it understood you!<br><br>
 			Playback voice: <select id='voiceList' class='to-is'></select><br>
 		</div>
+
+<!-----
+		<br><hr><br>
+
+		<div style='font-size:24px;color:#2994b2'><b>Pitch demo</b><br></div><br>
+		<p>
+			<button onclick="toggleLiveInput()">Live</button> &nbsp;
+			<button onclick="togglePlayback()">MP3</button>
+		</p>
+		<div><span id="pitch">--</span>Hz</div>
+		<canvas id="waveform2" width="512" height="256"></canvas>
+		<canvas id="waveform" width="512" height="256"></canvas>
+---->
+
 	</body>
 
 	<script>
 		
 		var randex=0;
+		curLang="en";
 		
 		$(document).ready(function() {								           	// ON PAGE LOADED
 			
@@ -83,6 +107,7 @@
 					$("#inputText").height($("#inputText")[0].scrollHeight-24);
 					});
 
+		
 			$("#random").click(function() {
 				$("#inputText").val(randomText[randex]);
 				randex=++randex%randomText.length
@@ -92,9 +117,14 @@
 				$("#resultDiv").text("Waiting for speech...")
 				var recognition = new webkitSpeechRecognition();
 				recognition.onresult = function(event) { 
-					$("#resultDiv").text(event.results[0][0].transcript) ;
+					Translate(event.results[0][0].transcript,curLang) ;
 					}
 				recognition.start();
+				});
+			
+			$("#languageSel").on("change", function() { 
+				curLang=$(this).val();
+				Translate($("#resultDiv").text(),curLang)
 				});
 
 		});
@@ -112,7 +142,24 @@
 		"It was the winter of despair"
 		];	
 
-		
+function Translate(text,lang)
+{
+		var url="https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl="+lang+"&dt=t&q="+encodeURI(text);
+		$.ajax({ url:url,dataType:'text',type:"GET",crossDomain:true,  
+			success:function(d) { 
+				d=$.parseJSON(d);
+				$("#resultDiv").text(d[0][0][0]);
+			 	},									
+			});		
+		}
+
+
+
+[
+	[["Esperando el discurso ...","Waiting for speech...",null,null,3]],null,"en"
+]
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ////////////////////////////////////////////////////////////////////////////////////////////
